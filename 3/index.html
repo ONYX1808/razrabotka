@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            font-family: 'Helvetica', 'sans-serif';
+        }
+
+        button {
+            width: 100px;
+            height: fit-content;
+            padding: 5px 0;
+            background-color: #D9D9D9;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+
+        }
+
+        input {
+            height: 50px;
+            padding: 12px 16px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="text"] {
+            width: 360px;
+            font-size: 24px;
+        }
+
+        /* При наведении */
+        input:hover {
+            border-color: #aaa;
+        }
+
+        /* При фокусе (когда вводишь текст) */
+        input:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .note-card {
+            position: relative;
+            background: #D9D9D9;
+            padding: 10px;
+            margin-bottom: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .note-content {
+            background-color: #FC9F9F;
+            width: 650px;
+            height: 46px;
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 24px;
+        }
+
+        .date-box {
+            background: #F71616;
+            width: 150px;
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .date-box__top {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .date-box__bottom {
+            text-align: center;
+            font-weight: 700;
+            font-size: 24px;
+        }
+
+        .note-actions {
+            background-color: #D9D9D9;
+            cursor: pointer;
+            padding: 5px 0 5px 5px;
+            position: absolute;
+            bottom: 100%;
+            right: 10px;
+            display: flex;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .note-actions img {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+        }
+
+        .note-add {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            margin: 20px 0 60px;
+        }
+
+        .note-add__actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script src="./packages/react.development.js"></script>
+    <script src="./packages/react-dom.development.js"></script>
+    <script src="./packages/babel.min.js"></script>
+    <script type="text/babel">
+        const DataContext = React.createContext();
+
+        function DataProvider({ children }) {
+            const [tasks, setTasks] = React.useState([
+                {
+                    content: "HTML is easy",
+                    date: {
+                        day: "2019-05-30",
+                        start: "09:00",
+                        end: "10:00"
+                    },
+                    important: true,
+                    completed: false
+                },
+                {
+                    content: "Browser can execute only Javascript",
+                    date: {
+                        day: "2019-05-30",
+                        start: "10:00",
+                        end: "11:00"
+                    },
+                    important: false,
+                    completed: true
+                },
+                {
+                    content: "GET and POST are the most important methods of HTTP protocol",
+                    date: {
+                        day: "2019-05-31",
+                        start: "11:00",
+                        end: "12:00"
+                    },
+                    important: true,
+                    completed: false
+                }
+            ]);
+
+            return (
+                <DataContext.Provider value={{ tasks, setTasks }}>
+                    {children}
+                </DataContext.Provider>
+            )
+        }
+
+        function NoteCard({ index, content, date, important, completed }) {
+            const { tasks, setTasks } = React.useContext(DataContext);
+
+            // Кнопка «Выполнено» должна отмечать задачу как неактивную (например, делая её полупрозрачной).
+            const completeTask = () => {
+                if (completed) {
+                    document.getElementsByClassName("note-content")[index].style.backgroundColor = "#FC9F9F";
+                    document.getElementsByClassName("date-box")[index].style.backgroundColor = "#F71616";
+                } else {
+                    document.getElementsByClassName("note-content")[index].style.backgroundColor = "green";
+                    document.getElementsByClassName("date-box")[index].style.backgroundColor = "green";
+                }
+
+                tasks[index] = {
+                    ...tasks[index],
+                    completed: !completed
+                };
+                setTasks([...tasks]);
+            }
+
+            // Кнопка «Редактировать» должна позволять пользователю изменять существующую задачу.
+            const editTask = () => {
+                const editedContent = prompt("Редактирование текста", content);
+                tasks[index] = {
+                    ...tasks[index],
+                    content: editedContent
+                };
+                setTasks([...tasks]);
+            }
+
+            // Кнопка «Удалить» должна удалять выбранную задачу.
+            const removeTask = () => {
+                const updatedTasks = tasks.filter((task, i) => i !== index);
+                setTasks(updatedTasks);
+            }
+
+            return (
+                <div className="note-card">
+                    <div className="note-content">
+                        {content}
+                    </div>
+                    <DateView date={date} />
+                    <div className="note-actions">
+                        <img onClick={completeTask} src="./assets/icons/check.svg" alt="check" />
+                        <img onClick={editTask} src="./assets/icons/mode_edit.svg" alt="edit" />
+                        <img onClick={removeTask} src="./assets/icons/delete_sweep.svg" alt="delete" />
+                    </div>
+                </div>
+            );
+        }
+
+        function DateView({ date }) {
+            const dateObj = new Date(date.day);
+            const dayOfWeek = dateObj.toLocaleString('en-us', { weekday: 'short' });
+            const dayInCalendar = dateObj.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+
+            return (
+                <div className="date-box">
+                    <div className="date-box__top">
+                        <div>{dayOfWeek}</div>
+                        <div>{dayInCalendar}</div>
+                    </div>
+                    <div className="date-box__bottom">{date.start} - {date.end}</div>
+                </div>
+            );
+        }
+
+        function NoteList() {
+            const { tasks } = React.useContext(DataContext);
+            let index = 0;
+
+            return (
+                <div className="note-list">
+                    {tasks.map((note, i) => {
+                        return (
+                            <NoteCard
+                                key={i}
+                                index={index++}
+                                content={note.content}
+                                date={note.date}
+                                important={note.important}
+                                completed={note.completed}
+                            />
+                        );
+                    })}
+                </div>
+            );
+        }
+
+        function DateInput(date, startTime, endTime, onChange) {
+            const [localDate, setLocalDate] = React.useState(date);
+            const [localStartTime, setLocalStartTime] = React.useState(startTime);
+            const [localEndTime, setLocalEndTime] = React.useState(endTime);
+
+            const handleChange = (type, value) => {
+                if (type === "date") setLocalDate(value);
+                if (type === "start") setLocalStartTime(value);
+                if (type === "end") setLocalEndTime(value);
+
+                onChange(
+                    type === "date" ? value : localDate,
+                    type === "start" ? value : localStartTime,
+                    type === "end" ? value : localEndTime
+                )
+            }
+
+            return (
+                <div>
+                    <input
+                        type="date"
+                        className="date-input"
+                        value={localDate}
+                        onChange={(e) => handleChange("date", e.target.value)}
+                    />
+                    <input
+                        type="time"
+                        className="start-time-input"
+                        value={localStartTime}
+                        onChange={(e) => handleChange("start", e.target.value)}
+                    />
+                    <input
+                        type="time"
+                        className="end-time-input"
+                        value={localEndTime}
+                        onChange={(e) => handleChange("end", e.target.value)}
+                    />
+                </div>
+            );
+        }
+
+        function NoteAdd() {
+            const [date, setDate] = React.useState(new Date().toISOString().split("T")[0]);
+            const [startTime, setStartTime] = React.useState(new Date().toISOString().slice(11, 16));
+
+
+            const currentTime = new Date();
+            currentTime.setHours(currentTime.getHours() + 1);
+            const [endTime, setEndTime] = React.useState(currentTime.toISOString().slice(11, 16));
+
+            const handleDateChange = (newDate, newStartTime, newEndTime) => {
+                setDate(newDate);
+                setStartTime(newStartTime);
+                setEndTime(newEndTime);
+                console.log(newDate, newStartTime, newEndTime);
+            }
+
+            const { tasks, setTasks } = React.useContext(DataContext);
+            const [newNote, setNewNote] = React.useState("");
+
+            const addTask = () => {
+                if (!newNote.trim()) return;
+                setTasks([...tasks, {
+                    content: newNote,
+                    date: {
+                        day: date,
+                        start: startTime,
+                        end: endTime
+                    },
+                    important: false,
+                    completed: false
+                }]);
+                setNewNote("");
+            }
+
+            // Кнопка «Очистить» должна очищать поле ввода текста и сбрасывать дату и время на текущие значения.
+            const clearTaskInputs = () => {
+                let inputClassNames = ["note-add__text", "date-input", "start-time-input", "end-time-input"];
+                inputClassNames.forEach((elementClassName) =>
+                    document.getElementsByClassName(elementClassName)[0].value = ""
+                )
+            }
+
+            return (
+                <div className="note-add">
+                    <input type="text" className="note-add__text" value={newNote} onChange={(e) => setNewNote(e.target.value)} />
+                    <DateInput
+                        date={date}
+                        startTime={startTime}
+                        endTime={endTime}
+                        onChange={handleDateChange} />
+                    <div className="note-add__actions">
+                        <button onClick={addTask}>Add</button>
+                        <button onClick={clearTaskInputs}>Clear</button>
+                    </div>
+                </div>
+            );
+        }
+
+        function NoteApp() {
+            return (
+                <DataProvider>
+                    <div className="container">
+                        <NoteAdd />
+                        <NoteList />
+                    </div>
+                </DataProvider>
+            );
+        }
+
+        ReactDOM.render(
+            <NoteApp />,
+            document.getElementById("root")
+        );
+    </script>
+
+</body>
+
+</html>
