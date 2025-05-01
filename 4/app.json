@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.batr.app"
+      "package": "com.example.four"
     },
     "web": {
       "bundler": "metro",

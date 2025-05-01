@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "6",
-    "slug": "6",
+    "name": "7",
+    "slug": "7",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -16,7 +16,7 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.example.six"
+      "package": "com.example.seven"
     },
     "web": {
       "bundler": "metro",
@@ -43,7 +43,7 @@
         "origin": false
       },
       "eas": {
-        "projectId": "c8170ce3-3487-411e-8532-888e177f0604"
+        "projectId": "d655a774-88b5-4de4-8fd2-5b3dae3ed671"
       }
     }
   }
